@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>CUTLINE v2.0 — Laser Project Workspace</title>
+<title>CUTLINE v2.0.1 — Laser Project Workspace</title>
 <style>
 :root{
   --bg:#111318;--panel:#181b22;--panel2:#20242d;--line:#343a46;--text:#eef1f6;--muted:#9aa3b2;
@@ -41,6 +41,8 @@ input[type="color"]{width:34px;height:30px;padding:2px;background:#101319;border
 .segmented{display:grid;grid-template-columns:repeat(4,1fr);gap:5px}.segmented button{height:32px;border:1px solid var(--line);border-radius:6px;background:#11141a;cursor:pointer}.segmented button:hover{border-color:var(--accent);color:var(--accent)}
 .layer-actions{display:flex;gap:5px}.layer-list{display:flex;flex-direction:column;gap:5px}.layer-row{display:grid;grid-template-columns:28px 28px 1fr auto;align-items:center;gap:4px;padding:5px;border:1px solid transparent;border-radius:7px;background:#151820}.layer-row.active{border-color:var(--accent);background:rgba(255,176,0,.08)}.layer-row button{border:0;background:transparent;color:var(--muted);cursor:pointer;padding:4px}.layer-row .layer-name{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;cursor:pointer}.layer-row .count{font-size:10px;color:var(--muted);padding-right:4px}.layer-row.hidden{opacity:.48}.layer-row.locked .layer-name:after{content:"  locked";font-size:9px;color:var(--muted)}
 .object-info{padding:8px;border:1px solid var(--line);border-radius:7px;background:#11141a;color:var(--muted);font-size:11px}.object-info strong{color:var(--text)}
+.boolean-buttons{grid-template-columns:repeat(2,1fr)}.boolean-buttons button{font-size:11px;font-weight:700}.boolean-operand-info{line-height:1.45}.boolean-operand-info .base-name{color:#ff6a5d;font-weight:800}.boolean-base-box{fill:none;stroke:#ff3b30;stroke-width:1.6;stroke-dasharray:10 4;vector-effect:non-scaling-stroke;pointer-events:none}.boolean-base-tag-bg{fill:#2a0f0c;stroke:#ff3b30;stroke-width:1;vector-effect:non-scaling-stroke;pointer-events:none}.boolean-base-tag{fill:#ff9a90;font-size:10px;font-weight:900;text-anchor:middle;dominant-baseline:middle;pointer-events:none}
+
 .status{grid-area:status;display:flex;align-items:center;gap:14px;padding:0 10px;background:#101218;border-top:1px solid var(--line);color:var(--muted);font-size:10px;letter-spacing:.03em}.status .message{color:#d6dbe4;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.status .save-state{margin-left:auto}.status .save-state.ok{color:var(--ok)}.status .save-state.warn{color:var(--accent)}
 .modal-backdrop{position:fixed;inset:0;display:none;place-items:center;background:rgba(0,0,0,.58);z-index:100}.modal-backdrop.open{display:grid}.modal{width:min(560px,calc(100vw - 32px));max-height:calc(100vh - 40px);overflow:auto;background:var(--panel);border:1px solid var(--line);border-radius:12px;box-shadow:var(--shadow)}.modal-head{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border-bottom:1px solid var(--line)}.modal-body{padding:16px}.modal-foot{display:flex;justify-content:flex-end;gap:8px;padding:12px 16px;border-top:1px solid var(--line)}
 .notice{padding:10px;border:1px solid #6a582b;background:rgba(255,176,0,.08);border-radius:7px;color:#e8d6a4;font-size:11px}.metric-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin:8px 0}.metric-card{padding:7px 8px;border:1px solid var(--line);border-radius:7px;background:#11141a;min-width:0}.metric-card span{display:block;color:var(--muted);font-size:9px;letter-spacing:.08em;text-transform:uppercase}.metric-card strong{display:block;margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:12px}.lock-row{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:2px 0 8px}.lock-row .check{min-width:0}.kbd{display:inline-block;padding:1px 5px;border:1px solid #555d6b;border-bottom-width:2px;border-radius:4px;background:#171a20;color:#d8dde6;font-size:10px}
@@ -87,7 +89,7 @@ input[type="color"]{width:34px;height:30px;padding:2px;background:#101319;border
     <button class="btn" id="jobSheetBtn"><span class="workspace-label">Job Sheet</span> ▤</button>
     <button class="btn" id="recoveryBtn" title="Versioned recovery">Recovery ◷</button>
     <button class="btn" id="preflightBtn">Preflight ✓</button>
-    <span class="version-chip">v2.0.0</span>
+    <span class="version-chip">v2.0.1</span>
     <button class="btn" id="svgPreviewBtn"><span class="label">SVG Preview</span> ◫</button>
     <button class="btn primary" id="exportBtn"><span class="label">Export</span> ⇩</button>
     <button class="btn" id="dxfExportBtn" style="display:none">Export DXF</button>
@@ -213,11 +215,13 @@ input[type="color"]{width:34px;height:30px;padding:2px;background:#101319;border
     <section class="panel" data-panel="boolean">
       <div class="panel-head"><strong>BOOLEAN OPERATIONS</strong><button class="panel-toggle">⌃</button></div>
       <div class="panel-body">
-        <div class="segmented">
-          <button data-boolean="union" title="Union">∪</button><button data-boolean="subtract" title="Subtract front selection from first selected">−</button><button data-boolean="intersect" title="Intersection">∩</button><button data-boolean="xor" title="Exclude overlap">⊕</button>
+        <div class="segmented boolean-buttons">
+          <button data-boolean="union" title="Combine all selected closed shapes">Union</button><button data-boolean="subtract" title="Subtract every other selected shape from the marked base">Subtract</button><button data-boolean="intersect" title="Keep only the shared overlapping area">Intersect</button><button data-boolean="xor" title="Keep all areas except overlaps">Exclude</button>
         </div>
-        <div class="row" style="margin-top:8px"><label>Precision</label><select class="fill" id="booleanScale"><option value="2">Draft</option><option value="4" selected>Standard</option><option value="6">Fine</option><option value="8">Ultra</option></select></div>
-        <div class="notice">Exact coordinate-based booleans operate on closed geometry without rasterization. Subtract uses the first-selected object as the base.</div>
+        <div class="object-info boolean-operand-info" id="booleanSelectionInfo" style="margin-top:8px">Select at least two closed shapes.</div>
+        <button class="btn" id="booleanCycleBaseBtn" style="width:100%;margin-top:7px" disabled>Cycle subtraction base</button>
+        <div class="row" style="margin-top:8px"><label>Curve detail</label><select class="fill" id="booleanScale"><option value="2">Draft</option><option value="4" selected>Standard</option><option value="6">Fine</option><option value="8">Ultra</option></select></div>
+        <div class="notice">Booleans use coordinate-based polygon clipping. Curves are flattened only for the clipping calculation at the selected detail. The red BASE marker identifies the object retained by Subtract.</div>
       </div>
     </section>
 
@@ -8045,7 +8049,7 @@ input[type="color"]{width:34px;height:30px;padding:2px;background:#101319;border
 <script>
 'use strict';
 (() => {
-const APP_VERSION='2.0.0';
+const APP_VERSION='2.0.1';
 const STORAGE_KEY='cutline-project-v2';
 const svgNS='http://www.w3.org/2000/svg';
 const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
@@ -8609,10 +8613,10 @@ function v13RoundedRectSubpath(o){const x=o.x,y=o.y,w=o.w,h=o.h,r=clamp(Math.abs
   {x,y:y+r,outX:x,outY:y+r-k}
 ]}}
 function v13EllipseSubpath(o){const k=V13_KAPPA,rx=o.rx,ry=o.ry,cx=o.cx,cy=o.cy;return{closed:true,points:[
-  {x:cx+rx,y:cy,outX:cx+rx,y:cy+k*ry,inX:cx+rx,y:cy-k*ry},
-  {x:cx,y:cy+ry,outX:cx-k*rx,y:cy+ry,inX:cx+k*rx,y:cy+ry},
-  {x:cx-rx,y:cy,outX:cx-rx,y:cy-k*ry,inX:cx-rx,y:cy+k*ry},
-  {x:cx,y:cy-ry,outX:cx+k*rx,y:cy-ry,inX:cx-k*rx,y:cy-ry}
+  {x:cx+rx,y:cy,outX:cx+rx,outY:cy+k*ry,inX:cx+rx,inY:cy-k*ry},
+  {x:cx,y:cy+ry,outX:cx-k*rx,outY:cy+ry,inX:cx+k*rx,inY:cy+ry},
+  {x:cx-rx,y:cy,outX:cx-rx,outY:cy-k*ry,inX:cx-rx,inY:cy+k*ry},
+  {x:cx,y:cy-ry,outX:cx+k*rx,outY:cy-ry,inX:cx-k*rx,inY:cy-ry}
 ]}}
 function objectSubpaths(o,segments=64){
   if(!o)return[];
@@ -8854,6 +8858,22 @@ bindEvents=function(){bindEventsV13Workspace();
   $('#docWidth').addEventListener('change',()=>{const sh=activeSheet();sh.width=state.document.width});$('#docHeight').addEventListener('change',()=>{const sh=activeSheet();sh.height=state.document.height});
 };
 
+
+
+/* CUTLINE v2.0.1 boolean geometry repair */
+function v201BooleanTolerance(){const detail=Number(state.booleanScale||$('#booleanScale')?.value||4);return ({2:1.25,4:.45,6:.16,8:.06})[detail]||.45}
+function v201BooleanSubpaths(o){const tol=v201BooleanTolerance();if(!o)return[];if(o.type==='path')return(o.subpaths||[{points:o.points||[],closed:!!o.closed}]).map(sub=>sub.points?.some(p=>v13HasIn(p)||v13HasOut(p))?v13FlattenSubpath(sub,tol):{closed:!!sub.closed,points:(sub.points||[]).map(p=>({x:p.x,y:p.y}))});if(o.type==='rect'){const sub=v13RoundedRectSubpath(o);return[sub.points.some(p=>v13HasIn(p)||v13HasOut(p))?v13FlattenSubpath(sub,tol):sub]}if(o.type==='ellipse')return[v13FlattenSubpath(v13EllipseSubpath(o),tol)];return[]}
+v13ClipperPaths=function(objs){const paths=[];for(const o of objs)for(const sub of v201BooleanSubpaths(o)){if(!sub.closed||sub.points.length<3)continue;const path=[];for(const q of sub.points){const p={X:Math.round(q.x*V13_CLIP_SCALE),Y:Math.round(q.y*V13_CLIP_SCALE)};const prev=path.at(-1);if(!prev||prev.X!==p.X||prev.Y!==p.Y)path.push(p)}if(path.length>2&&path[0].X===path.at(-1).X&&path[0].Y===path.at(-1).Y)path.pop();if(path.length>=3&&Math.abs(ClipperLib.Clipper.Area(path))>1)paths.push(path)}return paths};
+function v201BooleanResultSubpaths(paths){return paths.map(path=>{const points=[];for(const q of path){const p={x:q.X/V13_CLIP_SCALE,y:q.Y/V13_CLIP_SCALE},prev=points.at(-1);if(!prev||dist(prev,p)>.000001)points.push(p)}if(points.length>2&&dist(points[0],points.at(-1))<.000001)points.pop();return{closed:true,points}}).filter(sub=>sub.points.length>=3&&Math.abs(polygonArea(sub.points))>.000001)}
+booleanOperation=function(mode){const objs=state.selectedIds.map(objectById).filter(Boolean);if(objs.length<2){toast('Select at least two closed shapes.','error');return}if(objs.some(o=>!isClosedObject(o))){toast('Boolean operations require closed shapes.','error');return}const map={union:ClipperLib.ClipType.ctUnion,subtract:ClipperLib.ClipType.ctDifference,intersect:ClipperLib.ClipType.ctIntersection,xor:ClipperLib.ClipType.ctXor};if(!(mode in map))return;setStatus(`Calculating ${mode}…`);try{let result=v13ExecuteClip(v13ClipperPaths([objs[0]]),[],ClipperLib.ClipType.ctUnion);if(!result.length)throw new Error('The base object contains no valid closed contour.');for(const operand of objs.slice(1)){const clip=v13ClipperPaths([operand]);if(!clip.length)throw new Error(`${operand.name||labelForType(operand.type)} contains no valid closed contour.`);result=v13ExecuteClip(result,clip,map[mode]);if(!result.length)break}const subpaths=v201BooleanResultSubpaths(result);if(!subpaths.length){toast('The boolean result is empty.','error');setStatus('Boolean result was empty.');return}const first=objs[0],newObj={id:uid('obj'),name:`${capitalize(mode==='xor'?'exclude':mode)} Result`,type:'path',layerId:first.layerId,sheetId:first.sheetId||state.activeSheetId,style:deepClone(first.style),subpaths,metadata:{boolean:{operation:mode,detail:Number(state.booleanScale||4)}}},ids=new Set(objs.map(o=>o.id)),at=state.objects.findIndex(o=>o.id===first.id);state.objects=state.objects.filter(o=>!ids.has(o.id));state.objects.splice(Math.max(0,Math.min(at,state.objects.length)),0,newObj);state.selectedIds=[newObj.id];anchorSelection=null;pushHistory(`${capitalize(mode==='xor'?'exclude':mode)} vector boolean`);render();toast(`${capitalize(mode==='xor'?'exclude':mode)} completed with ${subpaths.length} contour${subpaths.length===1?'':'s'}.`,'success')}catch(err){console.error(err);toast('Vector boolean failed: '+err.message,'error');setStatus('Vector boolean failed.')}};
+function v201CycleBooleanBase(){if(state.selectedIds.length<2)return;state.selectedIds.push(state.selectedIds.shift());anchorSelection=null;setStatus(`Boolean base: ${objectById(state.selectedIds[0])?.name||labelForType(objectById(state.selectedIds[0])?.type)}.`);render()}
+function v201UpdateBooleanSelectionUI(){const info=$('#booleanSelectionInfo'),cycle=$('#booleanCycleBaseBtn'),buttons=$$('[data-boolean]');if(!info||!cycle)return;const objs=state.selectedIds.map(objectById).filter(Boolean),valid=objs.length>=2&&objs.every(isClosedObject);cycle.disabled=objs.length<2;buttons.forEach(btn=>btn.disabled=!valid);if(!objs.length){info.textContent='Select at least two closed shapes.';return}if(objs.length===1){info.innerHTML=`Selected: <strong>${esc(objs[0].name||labelForType(objs[0].type))}</strong><br>Select one or more additional closed shapes.`;return}const base=objs[0],others=objs.slice(1);info.innerHTML=`<span class="base-name">BASE: ${esc(base.name||labelForType(base.type))}</span><br>${others.length} operand${others.length===1?'':'s'}: ${others.map(o=>esc(o.name||labelForType(o.type))).join(', ')}${valid?'':'<br><strong>All operands must be closed.</strong>'}`}
+const updateSelectionUIV201=updateSelectionUI;
+updateSelectionUI=function(){updateSelectionUIV201();v201UpdateBooleanSelectionUI()};
+const renderOverlayV201=renderOverlay;
+renderOverlay=function(){renderOverlayV201();if(state.selectedIds.length<2)return;const base=objectById(state.selectedIds[0]),b=objectBounds(base);if(!base||!b)return;overlayRoot.appendChild(el('rect',{x:b.x,y:b.y,width:b.w,height:b.h,class:'boolean-base-box'}));const h=18/state.zoom,w=42/state.zoom,x=b.x+24/state.zoom,y=b.y-12/state.zoom;overlayRoot.appendChild(el('rect',{x:x-w/2,y:y-h/2,width:w,height:h,rx:4/state.zoom,class:'boolean-base-tag-bg'}));const t=el('text',{x,y,class:'boolean-base-tag','font-size':10/state.zoom});t.textContent='BASE';overlayRoot.appendChild(t)};
+const bindEventsV201=bindEvents;
+bindEvents=function(){bindEventsV201();$('#booleanCycleBaseBtn').onclick=v201CycleBooleanBase;v201UpdateBooleanSelectionUI()};
 
 state=state.sheets?normalizeProject(state):createDefaultState();
 
